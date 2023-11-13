@@ -1,1 +1,6 @@
-Flask==2.2.2
+Flask==2.3.3
+openai
+tiktoken
+Flask-Cors==4.0.0
+redis==5.0.0
+PyPDF2
