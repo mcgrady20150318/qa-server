@@ -26,6 +26,7 @@ def download_pdf(id):
     output_path = './' + id + '/' + id + '.pdf'
     with open(output_path, 'wb') as file:
         file.write(response.content)
+    print('download done')
 
 def upload_paper_content(id):
     try:
