@@ -29,20 +29,20 @@ def download_pdf(id):
     print('download done')
 
 def upload_paper_content(id):
-    try:
-        if not r.get("papertool:"+id+":paper.txt"):
-            download_pdf(id)
-            paper = ""
-            f = open('./' + id + '/' + id + '.pdf','rb')
-            reader = PyPDF2.PdfReader(f)
-            for i in range(len(reader.pages)):
-                page = reader.pages[i]
-                paper += page.extract_text()
-            r.set("papertool:"+id+":paper.txt",paper)
-            shutil.rmtree('./'+id)
-        return 'done'
-    except:
-        return 'error'
+    # try:
+    if not r.get("papertool:"+id+":paper.txt"):
+        download_pdf(id)
+        paper = ""
+        f = open('./' + id + '/' + id + '.pdf','rb')
+        reader = PyPDF2.PdfReader(f)
+        for i in range(len(reader.pages)):
+            page = reader.pages[i]
+            paper += page.extract_text()
+        r.set("papertool:"+id+":paper.txt",paper)
+        shutil.rmtree('./'+id)
+    return 'done'
+    # except:
+    #     return 'error'
 
 
 def qa(question,id):
