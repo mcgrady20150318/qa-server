@@ -1,5 +1,5 @@
 Flask==2.3.3
-openai
+openai==0.28.1
 tiktoken
 Flask-Cors==4.0.0
 redis==5.0.0
