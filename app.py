@@ -7,6 +7,7 @@ import os
 import openai
 import shutil
 from flask import Flask, request, jsonify, Response, stream_template
+from flask_cors import CORS
 
 openai.api_base = os.getenv("API_BASE")
 openai.api_key = os.getenv("API_KEY")
@@ -15,6 +16,7 @@ redis_url = os.getenv("REDIS_URL")
 r = redis.from_url(redis_url)
 
 app = Flask(__name__)
+CORS(app)
 
 def download_pdf(id):
     url = 'https://arxiv.org/pdf/'+id+'.pdf'
