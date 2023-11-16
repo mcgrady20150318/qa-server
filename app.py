@@ -1,11 +1,6 @@
-import os
-import time
-import requests
 import redis
-import PyPDF2
-import os
 import openai
-import shutil
+import os
 from flask import Flask, request, jsonify, Response, stream_template
 from flask_cors import CORS
 
@@ -18,35 +13,16 @@ r = redis.from_url(redis_url)
 app = Flask(__name__)
 CORS(app)
 
-def download_pdf(id):
-    url = 'https://arxiv.org/pdf/'+id+'.pdf'
-    response = requests.get(url)
-    if not os.path.exists('./'+id):
-        os.mkdir('./'+id)
-    output_path = './' + id + '/' + id + '.pdf'
-    with open(output_path, 'wb') as file:
-        file.write(response.content)
-    print('download done')
+def upload_paper_content(key,paper):
+    try:
+        if not r.get("qa:"+key+":paper.txt"):
+            r.set("qa:"+key+":paper.txt",paper)
+        return 'done'
+    except:
+        return 'error'
 
-def upload_paper_content(id):
-    # try:
-    if not r.get("papertool:"+id+":paper.txt"):
-        download_pdf(id)
-        paper = ""
-        f = open('./' + id + '/' + id + '.pdf','rb')
-        reader = PyPDF2.PdfReader(f)
-        for i in range(len(reader.pages)):
-            page = reader.pages[i]
-            paper += page.extract_text()
-        r.set("papertool:"+id+":paper.txt",paper)
-        shutil.rmtree('./'+id)
-    return 'done'
-    # except:
-    #     return 'error'
-
-
-def qa(question,id):
-    paper = r.get("papertool:"+id+":paper.txt").decode()
+def qa(key,question):
+    paper = r.get("qa:"+key+":paper.txt").decode()
     response = openai.ChatCompletion.create(
         model="moonshot-v1-128k",
         messages=[ 
@@ -72,20 +48,21 @@ def _index():
 
 @app.route('/upload', methods=['POST'])
 def _upload():
-    id = request.json.get('id')
-    print(id)
-    response = upload_paper_content(id)
+    key = request.json.get('key')
+    paper = request.json.get('paper')
+    print(key)
+    response = upload_paper_content(key,paper)
     return Response(response, mimetype='text/plain')
 
 
 @app.route('/qa', methods=['POST'])
 def _qa():
-    id = request.json.get('id')
+    key = request.json.get('key')
     question = request.json.get('question')
-    print(question,id)
+    print(key,question)
     try:
         def event_stream():
-            for line in qa(question,id):
+            for line in qa(key,question):
                 text = line.choices[0].delta.get('content', '')
                 if len(text): 
                     yield text
