@@ -43,7 +43,7 @@ def qa(key,question):
 
 @app.route('/', methods=['GET'])
 def _index():
-    return 'hello paper qa'
+    return 'hello qa'
 
 
 @app.route('/upload', methods=['POST'])
